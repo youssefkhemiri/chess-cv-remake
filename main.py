@@ -114,7 +114,7 @@ def board_to_fen(board):
 
 
 if __name__ == '__main__':
-    IMAGE_PATH = r"C:\Users\Razer\Documents\chess-cv\chess-cv\pic2.jpeg"
+    IMAGE_PATH = "./Ex2.jpg"
     
     # Create a CNN architecture and load pre-trained weights
     try:
