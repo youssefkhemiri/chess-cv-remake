@@ -8,12 +8,21 @@ import cv2
 import collections
 import scipy
 import scipy.cluster
-from keras.models import model_from_json
+from tensorflow import keras
+import json
+import tensorflow as tf
 
 model_path = "data/laps_models/laps.model.json"
 weights_path = "data/laps_models/laps.weights.h5"
-NEURAL_MODEL = model_from_json(open(model_path, 'r').read())
-NEURAL_MODEL.load_weights(weights_path)
+
+try:
+    # Try loading with newer method first
+    NEURAL_MODEL = tf.keras.models.load_model('data/laps_models/laps.model.keras')
+except:
+    # Fallback to older method
+    json_config = open(model_path, 'r').read()
+    NEURAL_MODEL = tf.keras.models.model_from_json(json_config)
+    NEURAL_MODEL.load_weights(weights_path)
 
 
 def laps_intersections(lines):

@@ -1,19 +1,30 @@
 # This script uses the CNN architecture defined in train.py to analyze
 # the given image (can be used autonomously, i.e. without explicitly running
 # train.py). Given an image path or multiple image paths separated by space,
-# turns it/them into a chess position/positions and outputs the FEN string.
+# turns it/them into a chess position/positions and saves a .png file/files.
 
+# References:
+# https://stackoverflow.com/questions/56754543/generate-chess-board-diagram-from-an-array-of-positions-in-python
+# https://chess.stackexchange.com/questions/28870/render-a-chessboard-from-a-pgn-file
+# https://www.programcreek.com/python/?code=yaqwsx%2FPcbDraw%2FPcbDraw-master%2Fpcbdraw%2Fpcbdraw.py#
+
+import chess
+import chess.svg
+import io
 import numpy as np
 import os
+import sys
+# import wand.color
+# import wand.image
+from matplotlib import pyplot as plt
 from pathlib import Path
 from preprocess import preprocess_image
 from train import create_model
-import tensorflow as tf
-import io
-
+from wand.api import library
 
 PIECES = ['Empty', 'Rook_White', 'Rook_Black', 'Knight_White', 'Knight_Black', 'Bishop_White',
           'Bishop_Black', 'Queen_White', 'Queen_Black', 'King_White', 'King_Black', 'Pawn_White', 'Pawn_Black']
+# PIECES = ['Empty','Rook','Knight','Bishop','Queen','King','Pawn']
 PIECES.sort()
 LABELS = {
     'Empty': '.',
@@ -30,6 +41,9 @@ LABELS = {
     'Pawn_White': 'P',
     'Pawn_Black': 'p',
 }
+TEMP_SVG_FOLDER = './'
+PNG_FOLDER = './results/'
+
 
 def classify_image(img):
     '''Given an image of a single piece, classifies it into one of the classes
@@ -113,22 +127,47 @@ def board_to_fen(board):
         return s.getvalue()
 
 
+# def fen_to_svg(fen):
+#     '''Converts a given string to a SVG file and saves it temporarily.'''
+#     board = chess.Board(fen)
+#     boardsvg = chess.svg.board(board=board)
+#     f = open(TEMP_SVG_FOLDER + 'temp.SVG', "w")
+#     f.write(boardsvg)
+#     f.close()
+
+
+# def svg_to_png(infile, outfile, dpi=300):
+#     '''Loads the temporarily greated SVG file, converts it to PNG, and saves
+#     it. Removes the temporary SVG file.'''
+#     with wand.image.Image(resolution=300) as image:
+#         with wand.color.Color('transparent') as background_color:
+#             library.MagickSetBackgroundColor(image.wand,
+#                                              background_color.resource)
+#         image.read(filename=infile, resolution=300)
+#         png_image = image.make_blob("png32")
+#         with open(outfile, "wb") as out:
+#             out.write(png_image)
+#         # Once done, remove the temporary SVG file
+#         os.remove(infile)
+
+
 if __name__ == '__main__':
-    IMAGE_PATH = r"C:\Users\Razer\Documents\chess-cv\chess-cv\pic2.jpeg"
-    
-    # Create a CNN architecture and load pre-trained weights
-    try:
+    for IMAGE_PATH in sys.argv[1:]:
+        image_name = IMAGE_PATH.split('/')[-1]
+        file_name = './results/' + image_name
+        # Create folder if it doesn't exist
+        Path('./results/').mkdir(parents=True, exist_ok=True)
+        # Create a CNN architecture and load pre-trained weights.
         model = create_model()
-        model.load_weights('model_weights.h5')
-    except Exception as e:
-        print(f"Error loading model: {e}")
-        raise
-        
-    # Load image and convert it to array, then to FEN
-    img = preprocess_image(IMAGE_PATH, save=False)
-    arr = analyze_board(img)
-    fen = board_to_fen(arr)
-    print("FEN string:", fen)
+        model.load_weights('./model_weights.h5')
+        # Load image and convert it to array, then to FEN, then to SVG, then to PNG.
+        img = preprocess_image(IMAGE_PATH, save=False)
+        arr = analyze_board(img)
+        fen = board_to_fen(arr)
+        print(fen)
+        # fen_to_svg(fen)
+        # svg_to_png(infile=TEMP_SVG_FOLDER+'temp.SVG',
+        #            outfile=file_name)
+        # plt.imshow(cv2.imread(file_name))
+        # plt.show()
     print('Done!')
-
-

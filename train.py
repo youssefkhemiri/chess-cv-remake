@@ -7,8 +7,13 @@
 from matplotlib import pyplot as plt
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
+# from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from tensorflow.keras.optimizers import RMSprop
+# from tensorflow.keras.optimizers import RMSprop
+# from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Input
+# from tensorflow.keras.optimizers import RMSprop
+
 import cv2
 import json
 import os
@@ -45,36 +50,65 @@ def create_generators(folderpath=DATA_FOLDER):
     return (train_generator, validation_generator)
 
 
-def create_model(optimizer=RMSprop(learning_rate=0.001)):
-    '''Creates a CNN architecture and compiles it.'''
+# def create_model(optimizer=RMSprop(learning_rate=0.001)):
+#     '''Creates a CNN architecture and compiles it.'''
+#     model = Sequential([
+#         # Note the input shape is the desired size of the image 300 x 150 with 3 bytes color
+#         # The first convolution
+#         Conv2D(16, (3, 3), activation='relu', input_shape=(300, 150, 3)),
+#         MaxPooling2D(2, 2),
+#         # The second convolution
+#         Conv2D(32, (3, 3), activation='relu'),
+#         MaxPooling2D(2, 2),
+#         # The third convolution
+#         Conv2D(64, (3, 3), activation='relu'),
+#         MaxPooling2D(2, 2),
+#         # The fourth convolution
+#         Conv2D(64, (3, 3), activation='relu'),
+#         MaxPooling2D(2, 2),
+#         # The fifth convolution
+#         Conv2D(64, (3, 3), activation='relu'),
+#         MaxPooling2D(2, 2),
+#         # Flatten the results to feed into a dense layer
+#         Flatten(),
+#         # 128 neuron in the fully-connected layer
+#         Dense(128, activation='relu'),
+#         # 13 output neurons for 13 classes with the softmax activation
+#         Dense(13, activation='softmax')
+#     ])
+
+#     model.compile(loss='categorical_crossentropy',
+#                   optimizer=optimizer,
+#                   metrics=['acc'])
+
+#     return model
+
+def create_model(optimizer=None):
+    if optimizer is None:
+        optimizer = RMSprop(learning_rate=0.001)
+
     model = Sequential([
-        # Note the input shape is the desired size of the image 300 x 150 with 3 bytes color
-        # The first convolution
-        Conv2D(16, (3, 3), activation='relu', input_shape=(300, 150, 3)),
+        Input(shape=(300, 150, 3)),  # Explicit input shape
+        Conv2D(16, (3, 3), activation='relu'),
         MaxPooling2D(2, 2),
-        # The second convolution
         Conv2D(32, (3, 3), activation='relu'),
         MaxPooling2D(2, 2),
-        # The third convolution
         Conv2D(64, (3, 3), activation='relu'),
         MaxPooling2D(2, 2),
-        # The fourth convolution
         Conv2D(64, (3, 3), activation='relu'),
         MaxPooling2D(2, 2),
-        # The fifth convolution
         Conv2D(64, (3, 3), activation='relu'),
         MaxPooling2D(2, 2),
-        # Flatten the results to feed into a dense layer
         Flatten(),
-        # 128 neuron in the fully-connected layer
         Dense(128, activation='relu'),
-        # 13 output neurons for 13 classes with the softmax activation
         Dense(13, activation='softmax')
     ])
 
-    model.compile(loss='categorical_crossentropy',
-                  optimizer=optimizer,
-                  metrics=['acc'])
+    model.compile(
+        loss='categorical_crossentropy',
+        optimizer=optimizer,
+        metrics=['accuracy']
+    )
 
     return model
 

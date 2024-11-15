@@ -1,7 +1,8 @@
+from tensorflow import keras
 from tensorflow.keras.optimizers import RMSprop
-from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import *
-from tensorflow.python.keras.optimizer_v2.rmsprop import RMSProp
+from tensorflow.keras.models import Sequential
+import tensorflow as tf
 
 # input
 model = Sequential()
@@ -21,6 +22,11 @@ model.add(Flatten())
 
 # output
 model.add(Dense(2, activation='softmax'))
-model.compile(RMSProp(learning_rate=0.001),
-              loss='categorical_crossentropy',
-              metrics=['categorical_accuracy'])
+model.compile(
+    optimizer=RMSprop(learning_rate=0.001),
+    loss='categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+# Save model using the newer recommended approach
+tf.keras.models.save_model(model, 'data/laps_models/laps.model.keras')
