@@ -112,9 +112,21 @@ def board_to_fen(board):
         s.write(' w KQkq - 0 1')
         return s.getvalue()
 
+import chess
+import chess.engine
+# import ssl
+def get_best_move(fen):
+    """Get the best move using Stockfish"""
+    with chess.engine.SimpleEngine.popen_uci(r"C:\Users\Razer\Documents\ChessProject\stockfish\stockfish-windows-x86-64-avx2.exe") as engine:
+        board = chess.Board(fen)
+        print(board)
+        print("--------------------------------")
+        # result = engine.play(board, chess.engine.Limit(time=0.1))
+        result = engine.play(board, chess.engine.Limit(depth=10))
+        return result.move
 
 if __name__ == '__main__':
-    IMAGE_PATH = "./Ex2.jpg"
+    IMAGE_PATH = "./Ex3.jpg"
     
     # Create a CNN architecture and load pre-trained weights
     try:
@@ -130,5 +142,7 @@ if __name__ == '__main__':
     fen = board_to_fen(arr)
     print("FEN string:", fen)
     print('Done!')
+    best_move = get_best_move(fen)
+    print("Best move:", best_move)
 
 
